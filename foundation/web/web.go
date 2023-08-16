@@ -34,12 +34,14 @@ func (a *App) Handle(method string, path string, handler Handler) {
 	h := func(w http.ResponseWriter, r *http.Request) {
 
 		// ADD ANY CODE I LIKE
+		// Logging Started
 
 		if err := handler(r.Context(), w, r); err != nil {
 			// ERROR HANDLE
 			return
 		}
 
+		// Logging Completed
 		// ADD ANY CODE I LIKE
 	}
 
