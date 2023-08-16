@@ -1,10 +1,10 @@
 package handlers
 
 import (
-	"encoding/json"
 	"net/http"
 	"os"
 
+	"github.com/ardanlabs/service/app/services/sales-api/router"
 	"github.com/ardanlabs/service/foundation/logger"
 	"github.com/ardanlabs/service/foundation/web"
 )
@@ -20,17 +20,7 @@ type APIMuxConfig struct {
 func APIMux(cfg APIMuxConfig) *web.App {
 	app := web.NewApp(cfg.Shutdown)
 
-	h := func(w http.ResponseWriter, r *http.Request) {
-		status := struct {
-			Status string
-		}{
-			Status: "HACK",
-		}
-
-		json.NewEncoder(w).Encode(status)
-	}
-
-	app.Handle(http.MethodGet, "/hack", h)
+	app.Handle(http.MethodGet, "/hack", router.Hack)
 
 	return app
 }
