@@ -42,6 +42,19 @@ up:
 down:
 	kind delete cluster --name $(KIND_CLUSTER)
 
+# ==============================================================================
+# Building containers
+
+all: service
+
+service:
+	docker build \
+		-f zarf/docker/dockerfile.service \
+		-t $(SERVICE_IMAGE) \
+		--build-arg BUILD_REF=$(VERSION) \
+		--build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
+		.
+
 # ------------------------------------------------------------------------------
 
 logs:
