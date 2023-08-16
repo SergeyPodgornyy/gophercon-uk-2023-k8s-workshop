@@ -27,10 +27,9 @@ spec:
       containers:
       - name: sales-api
         image: service-image
-        # resources:
-        #   limits:
-        #     memory: 512Mi
-        #     cpu: "3"
-        #   requests:
-        #     memory: 256Mi
-        #     cpu: "1"
+
+        env:
+        - name: GOMAXPROCS
+          valueFrom:
+            resourceFieldRef:
+              resource: limits.cpu

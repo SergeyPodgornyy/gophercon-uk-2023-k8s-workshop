@@ -72,3 +72,6 @@ status:
 	kubectl get nodes -o wide
 	kubectl get svc -o wide
 	kubectl get pods -o wide --watch --all-namespaces
+
+describe:
+	kubectl describe pod --namespace=$(NAMESPACE) -l app=$(APP)
