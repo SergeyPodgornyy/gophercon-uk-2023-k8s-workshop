@@ -1,16 +1,17 @@
 package router
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 )
 
-func Hack(w http.ResponseWriter, r *http.Request) {
+func Hack(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	status := struct {
 		Status string
 	}{
 		Status: "HACK",
 	}
 
-	json.NewEncoder(w).Encode(status)
+	return json.NewEncoder(w).Encode(status)
 }
