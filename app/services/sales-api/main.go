@@ -18,6 +18,10 @@ import (
 	"github.com/ardanlabs/service/foundation/logger"
 )
 
+/*
+	Need to figure out timeouts for http service.
+*/
+
 var build = "develop"
 
 func main() {
@@ -37,9 +41,6 @@ func run(ctx context.Context, log *logger.Logger) error {
 	// GOMAXPROCS
 
 	log.Info(ctx, "startup", "GOMAXPROCS", runtime.GOMAXPROCS(0))
-
-	shutdown := make(chan os.Signal, 1)
-	signal.Notify(shutdown, syscall.SIGINT, syscall.SIGTERM)
 
 	// -------------------------------------------------------------------------
 	// Configuration
@@ -97,12 +98,48 @@ func run(ctx context.Context, log *logger.Logger) error {
 	}()
 
 	// -------------------------------------------------------------------------
+	// Start API Service
+
+	log.Info(ctx, "startup", "status", "initializing V1 API support")
+
+	shutdown := make(chan os.Signal, 1)
+	signal.Notify(shutdown, syscall.SIGINT, syscall.SIGTERM)
+
+	api := http.Server{
+		Addr:         cfg.Web.APIHost,
+		Handler:      nil,
+		ReadTimeout:  cfg.Web.ReadTimeout,
+		WriteTimeout: cfg.Web.WriteTimeout,
+		IdleTimeout:  cfg.Web.IdleTimeout,
+	}
+
+	serverErrors := make(chan error, 1)
+
+	go func() {
+		log.Info(ctx, "startup", "status", "api router started", "host", api.Addr)
+
+		serverErrors <- api.ListenAndServe()
+	}()
+
+	// -------------------------------------------------------------------------
 	// Shutdown
 
-	sig := <-shutdown
+	select {
+	case err := <-serverErrors:
+		return fmt.Errorf("server error: %w", err)
 
-	log.Info(ctx, "shutdown", "status", "shutdown started", "signal", sig)
-	defer log.Info(ctx, "shutdown", "status", "shutdown complete", "signal", sig)
+	case sig := <-shutdown:
+		log.Info(ctx, "shutdown", "status", "shutdown started", "signal", sig)
+		defer log.Info(ctx, "shutdown", "status", "shutdown complete", "signal", sig)
+
+		ctx, cancel := context.WithTimeout(context.Background(), cfg.Web.ShutdownTimeout)
+		defer cancel()
+
+		if err := api.Shutdown(ctx); err != nil {
+			api.Close()
+			return fmt.Errorf("could not stop server gracefully: %w", err)
+		}
+	}
 
 	return nil
 }
