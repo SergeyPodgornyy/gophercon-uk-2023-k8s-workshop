@@ -1,3 +1,22 @@
+# ArdanLabs
+# https://www.ardanlabs.com/training/individual-on-demand/
+# https://www.ardanlabs.com/scholarship/
+
+# Service Weaver Workshops
+# https://serviceweaver.dev
+#
+# Workshop 1: 
+# Date: August 16th, 6:30 PM
+# Location: Google UK - 6 Pancras Square Greater London, N1C 4AG
+# Register: Just drop by, by and we will register you on-site if the online registration is closed
+# NOTES: A good option, if you can't attend workshop 2 at GopherCon UK
+#
+# Workshop 2:
+# Date: August 17th, 13:30 PM
+# Location: GopherCon UK, Room: Queen Vault
+# More info: https://www.gophercon.co.uk/unconference/
+# NOTES: Preferred option as it's more convenient
+
 # Check to see if we can use ash, in Alpine images, or default to BASH.
 SHELL_PATH = /bin/ash
 SHELL = $(if $(wildcard $(SHELL_PATH)),/bin/ash,/bin/bash)
@@ -62,6 +81,11 @@ dev-up:
 
 	kubectl wait --timeout=120s --namespace=local-path-storage --for=condition=Available deployment/local-path-provisioner
 
+	kind load docker-image $(TELEPRESENCE) --name $(KIND_CLUSTER)
+
+	telepresence --context=kind-$(KIND_CLUSTER) helm install --request-timeout 2m 
+	telepresence --context=kind-$(KIND_CLUSTER) connect
+
 dev-down:
 	kind delete cluster --name $(KIND_CLUSTER)
 
@@ -93,3 +117,8 @@ dev-status:
 
 dev-describe-sales:
 	kubectl describe pod --namespace=$(NAMESPACE) -l app=$(APP)
+
+# ------------------------------------------------------------------------------
+
+metrics:
+	curl -il http://$(SERVICE_NAME).$(NAMESPACE).svc.cluster.local:4000/debug/vars
