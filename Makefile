@@ -45,7 +45,7 @@ up:
 	kind load docker-image $(TELEPRESENCE) --name $(KIND_CLUSTER)
 
 	telepresence --context=kind-$(KIND_CLUSTER) helm install --request-timeout 2m 
-	telepresence --context=kind-$(KIND_CLUSTER) connect
+	telepresence --context=kind-$(KIND_CLUSTER) -kubeconfig=$(HOME)/.kube/config connect
 
 down:
 	telepresence quit -s
@@ -97,6 +97,9 @@ tidy:
 	go mod vendor
 
 # ------------------------------------------------------------------------------
+
+hack:
+	curl -il http://$(SERVICE_NAME).$(NAMESPACE).svc.cluster.local:3000/hack
 
 metrics:
 	curl -il http://$(SERVICE_NAME).$(NAMESPACE).svc.cluster.local:4000/debug/vars
