@@ -3,7 +3,10 @@ SHELL_PATH = /bin/ash
 SHELL = $(if $(wildcard $(SHELL_PATH)),/bin/ash,/bin/bash)
 
 run:
-	go run app/services/sales-api/main.go
+	go run app/services/sales-api/main.go | go run app/tooling/logfmt/main.go -service=$(SERVICE_NAME)
+
+help:
+	go run app/services/sales-api/main.go --help
 
 # ==============================================================================
 # Define dependencies
@@ -73,7 +76,7 @@ reapply: all load apply
 # ------------------------------------------------------------------------------
 
 logs:
-	kubectl logs --namespace=$(NAMESPACE) -l app=$(APP) --all-containers=true -f --tail=100 --max-log-requests=6
+	kubectl logs --namespace=$(NAMESPACE) -l app=$(APP) --all-containers=true -f --tail=100 --max-log-requests=6 | go run app/tooling/logfmt/main.go -service=$(SERVICE_NAME)
 
 status:
 	kubectl get nodes -o wide
@@ -82,3 +85,7 @@ status:
 
 describe:
 	kubectl describe pod --namespace=$(NAMESPACE) -l app=$(APP)
+
+tidy:
+	go mod tidy
+	go mod vendor
