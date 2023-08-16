@@ -42,7 +42,13 @@ up:
 
 	kubectl wait --timeout=120s --namespace=local-path-storage --for=condition=Available deployment/local-path-provisioner
 
+	kind load docker-image $(TELEPRESENCE) --name $(KIND_CLUSTER)
+
+	telepresence --context=kind-$(KIND_CLUSTER) helm install --request-timeout 2m 
+	telepresence --context=kind-$(KIND_CLUSTER) connect
+
 down:
+	telepresence quit -s
 	kind delete cluster --name $(KIND_CLUSTER)
 
 # ==============================================================================
@@ -89,3 +95,8 @@ describe:
 tidy:
 	go mod tidy
 	go mod vendor
+
+# ------------------------------------------------------------------------------
+
+metrics:
+	curl -il http://$(SERVICE_NAME).$(NAMESPACE).svc.cluster.local:4000/debug/vars

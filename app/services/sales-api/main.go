@@ -84,7 +84,7 @@ func run(log *logger.Logger) error {
 	// -------------------------------------------------------------------------
 	// Start Debug Service
 
-	go func() {
+	go func() { // ⚠️ Orphan
 		log.Info(ctx, "startup", "status", "debug v1 router started", "host", cfg.Web.DebugHost)
 
 		// http.DefaultServeMux potentially securety vulnarable
