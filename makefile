@@ -121,5 +121,8 @@ dev-describe-sales:
 
 # ------------------------------------------------------------------------------
 
+hack:
+	curl -il http://$(SERVICE_NAME).$(NAMESPACE).svc.cluster.local:3000/hack
+
 metrics:
 	curl -il http://$(SERVICE_NAME).$(NAMESPACE).svc.cluster.local:4000/debug/vars
