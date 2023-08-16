@@ -87,6 +87,7 @@ dev-up:
 	telepresence --context=kind-$(KIND_CLUSTER) connect
 
 dev-down:
+	telepresence quit -s
 	kind delete cluster --name $(KIND_CLUSTER)
 
 # ------------------------------------------------------------------------------
